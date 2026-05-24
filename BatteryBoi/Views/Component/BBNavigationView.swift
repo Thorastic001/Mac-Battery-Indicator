@@ -89,13 +89,27 @@ struct NavigationContainer: View {
                     }
                     .frame(height:60)
                     .background(
-                        HStack(alignment: .center, spacing: 0) {
-                            LinearGradient(gradient: Gradient(colors: [Color("BatteryBackground").opacity(0.0), Color("BatteryBackground")]), startPoint: .leading, endPoint: .trailing)
-                                .frame(width: 30)
+                        ZStack {
+                            WindowViewBlur().allowsHitTesting(false)
+                            
+                            Color("BatteryBackground").opacity(0.20).allowsHitTesting(false)
+                            
+                            HStack(alignment: .center, spacing: 0) {
+                                LinearGradient(gradient: Gradient(colors: [Color.clear, Color.black.opacity(0.15)]), startPoint: .leading, endPoint: .trailing)
+                                    .frame(width: 30)
 
-                            Rectangle().fill(Color("BatteryBackground"))
-
+                                Color.black.opacity(0.15)
+                            }
+                            .allowsHitTesting(false)
                         }
+                        .mask(
+                            HStack(alignment: .center, spacing: 0) {
+                                LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.0), Color.black]), startPoint: .leading, endPoint: .trailing)
+                                    .frame(width: 30)
+
+                                Rectangle().fill(Color.black)
+                            }
+                        )
                         .frame(width: size.width + 16)
                         .offset(x:self.bluetooth.connected.count > 0 ? -8.0 : 48.0)
                         
@@ -117,7 +131,8 @@ struct NavigationContainer: View {
             }
             
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 26)
+        .padding(.bottom, 16)
         .frame(height: 86)
         .onHover { hover in
             withAnimation(Animation.easeOut.delay(self.hover ? 1.2 : 0.1)) {

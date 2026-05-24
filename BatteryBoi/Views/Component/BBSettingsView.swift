@@ -28,37 +28,106 @@ struct SettingsItem: View {
     @State var subtitle:String? = nil
     @State var color:String? = nil
     @State var icon:String? = nil
+    @State private var isHovered = false
 
     var body: some View {
-        HStack(alignment: .center) {
+        HStack(alignment: .center, spacing: 0) {
             Image(icon ?? item.type.icon)
-                .font(.system(size: 23, weight: .medium))
+                .font(.system(size: 20, weight: .medium))
                 .foregroundColor(self.color == nil ? Color("BatterySubtitle") : Color("BatteryEfficient"))
-                .frame(height: 36)
-                .padding(.trailing, 6)
+                .frame(width: 24, height: 24)
+                .padding(.leading, 14)
+                .padding(.trailing, 8)
 
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 1) {
                 Text(item.title)
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: 13, weight: .bold))
                     .foregroundColor(Color("BatteryTitle"))
-                    .padding(0)
+                    .lineLimit(1)
                 
                 if self.hover == true && self.subtitle != nil {
                     Text(self.subtitle ?? "")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: 9, weight: .bold))
                         .foregroundColor(Color("BatterySubtitle"))
+                        .lineLimit(1)
                     
                 }
                 
             }
             
+            Spacer(minLength: 0)
         }
-        .frame(height: 60)
-        .padding(.leading, 18)
-        .padding(.trailing, 26)
+        .frame(width: 156, height: 60)
         .background(
-            RoundedRectangle(cornerRadius: 30, style: .continuous).fill(Color("BatteryButton"))
-            
+            ZStack {
+                // 1. Volumetric carved glass depth backing
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
+                    .fill(Color.black.opacity(self.isHovered ? 0.22 : 0.14))
+                
+                // 2. Liquid translucent body
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
+                    .fill(Color.white.opacity(self.isHovered ? 0.14 : 0.06))
+                
+                // 3. Cloudy shine gradient
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.white.opacity(self.isHovered ? 0.18 : 0.10),
+                                Color.white.opacity(self.isHovered ? 0.05 : 0.01)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                
+                // 4. Curved reflective streak highlight
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.white.opacity(0.12),
+                                Color.clear
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .center
+                        )
+                    )
+                    .frame(height: 25)
+                    .offset(y: -12)
+                    .blur(radius: 1.0)
+                    .blendMode(.plusLighter)
+
+                // 5. Internal bottom shadow for carved 3D indentation
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
+                    .stroke(Color.black.opacity(0.60), lineWidth: 1.5)
+                    .blur(radius: 1.5)
+                    .mask(
+                        RoundedRectangle(cornerRadius: 30, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.clear, Color.black]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                    )
+
+                // 6. Curvature lighting stroke with bright top edge and strong glow
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
+                    .stroke(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.white.opacity(self.isHovered ? 0.75 : 0.45),
+                                Color.white.opacity(self.isHovered ? 0.25 : 0.10),
+                                Color.white.opacity(0.02)
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ),
+                        lineWidth: 1.0
+                    )
+            }
         )
         .onAppear() {
             if item.type == .appEfficencyMode {
@@ -180,6 +249,9 @@ struct SettingsItem: View {
             
         }
         .onHover { hover in
+            withAnimation(.easeOut(duration: 0.2)) {
+                self.isHovered = hover
+            }
             switch hover {
                 case true : NSCursor.pointingHand.push()
                 default : NSCursor.pop()
@@ -201,6 +273,7 @@ struct SettingsOverlayItem: View {
     @State private var visible:Bool = true
     @State private var timeline = Array<String>()
     @State private var index:Int = 0
+    @State private var isHovered = false
 
     init(_ item:SettingsActionType) {
         self._item = State(initialValue: item)
@@ -211,8 +284,79 @@ struct SettingsOverlayItem: View {
     
     var body: some View {
         RoundedRectangle(cornerRadius: 30, style: .continuous)
-            .fill(Color("BatteryButton"))
+            .fill(Color.clear)
             .frame(width: 60)
+            .background(
+                ZStack {
+                    // 1. Volumetric carved glass depth backing
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(Color.black.opacity(self.isHovered ? 0.22 : 0.14))
+                    
+                    // 2. Liquid translucent body
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(Color.white.opacity(self.isHovered ? 0.14 : 0.06))
+                    
+                    // 3. Cloudy shine gradient
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(self.isHovered ? 0.18 : 0.10),
+                                    Color.white.opacity(self.isHovered ? 0.05 : 0.01)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                    
+                    // 4. Curved reflective streak highlight
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(0.12),
+                                    Color.clear
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .center
+                            )
+                        )
+                        .frame(height: 25)
+                        .offset(y: -12)
+                        .blur(radius: 1.0)
+                        .blendMode(.plusLighter)
+
+                    // 5. Internal bottom shadow for carved 3D indentation
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .stroke(Color.black.opacity(0.60), lineWidth: 1.5)
+                        .blur(radius: 1.5)
+                        .mask(
+                            RoundedRectangle(cornerRadius: 30, style: .continuous)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [Color.clear, Color.black]),
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                        )
+
+                    // 6. Curvature lighting stroke with bright top edge and strong glow
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(self.isHovered ? 0.75 : 0.45),
+                                    Color.white.opacity(self.isHovered ? 0.25 : 0.10),
+                                    Color.white.opacity(0.02)
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 1.0
+                        )
+                }
+            )
             .overlay(
                 Image(systemName: self.icon)
                     .font(.system(size: 16, weight: .medium))
@@ -277,6 +421,9 @@ struct SettingsOverlayItem: View {
                 
             }
             .onHover { hover in
+                withAnimation(.easeOut(duration: 0.2)) {
+                    self.isHovered = hover
+                }
                 switch hover {
                     case true : NSCursor.pointingHand.push()
                     default : NSCursor.pop()

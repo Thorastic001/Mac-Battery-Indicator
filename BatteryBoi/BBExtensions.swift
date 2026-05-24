@@ -68,8 +68,8 @@ struct ViewMarkdown: View {
         HStack(spacing: 0) {
             if components.count == 1 {
                 Text(components[0])
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(Color("BatterySubtitle"))
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(Color.white.opacity(0.70))
                     .lineLimit(3)
 
             }
@@ -77,15 +77,15 @@ struct ViewMarkdown: View {
                 ForEach(0..<components.count, id: \.self) { number in
                     if number.isMultiple(of: 2) {
                         Text(components[number])
-                            .font(.system(size: 12, weight: .regular))
-                            .foregroundColor(Color("BatterySubtitle"))
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(Color.white.opacity(0.70))
                             .lineLimit(1)
 
                     }
                     else {
                         Text(components[number])
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(Color("BatteryTitle").opacity(0.9))
+                            .foregroundColor(Color.white.opacity(0.90))
                             .lineLimit(1)
 
                     }

@@ -307,7 +307,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					D8D9E59B2A7DE7AB00E295FA = {
 						CreatedOnToolsVersion = 14.3;
@@ -466,9 +466,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -489,6 +492,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_SWIFT_FLAGS = "-DMACOS_13_AND_ABOVE";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -529,9 +533,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -545,6 +552,7 @@
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "-DMACOS_13_AND_ABOVE";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
@@ -557,11 +565,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = BatteryBoi/BatteryBoi.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 27;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"BatteryBoi/Preview Content\"";
-				DEVELOPMENT_TEAM = QYKKXLKZD6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -569,6 +577,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = BatteryBoi;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "We need access to Bluetooth to show the Battery Status for your Connected Devices.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "We check your calendar to ensure your battery lasts for your conference calls.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "We check your calendar to ensure your battery lasts for your conference calls.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Ovatar Ltd";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -579,7 +588,7 @@
 				MARKETING_VERSION = 2.4.1;
 				OLDER_MACOS = "";
 				OTHER_SWIFT_FLAGS = "-DMACOS_13_AND_ABOVE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.ovatar.batteryapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rupayan.batteryapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -593,11 +602,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = BatteryBoi/BatteryBoi.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 27;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"BatteryBoi/Preview Content\"";
-				DEVELOPMENT_TEAM = QYKKXLKZD6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -605,6 +614,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = BatteryBoi;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "We need access to Bluetooth to show the Battery Status for your Connected Devices.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "We check your calendar to ensure your battery lasts for your conference calls.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "We check your calendar to ensure your battery lasts for your conference calls.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Ovatar Ltd";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -615,7 +625,7 @@
 				MARKETING_VERSION = 2.4.1;
 				OLDER_MACOS = "";
 				OTHER_SWIFT_FLAGS = "-DMACOS_13_AND_ABOVE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.ovatar.batteryapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rupayan.batteryapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

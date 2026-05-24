@@ -1,6 +1,25 @@
+# Xcode user settings, state, and caches
+build/
+DerivedData/
+*.xcuserstate
+project.xcworkspace/xcuserdata/
+*.xcuserdatad
+.DS_Store
 
+# VS Code
+.vscode/
+
+# Build results and temp scripts
+*.dmg
+*.ipa
+*.app
+patch.swift
+patch_blur.swift
+patch_glass.swift
+patch_menucontainer.swift
+
+# Original configurations & media assets
 DEnviroments.xcconfig
-*.wav
 *.wav
 BatteryBoi DMG.dmgcanvas/Disk Image
 BatteryBoi DMG.dmgcanvas/Contents/backgroundImage.png

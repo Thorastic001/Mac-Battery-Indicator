@@ -26,6 +26,7 @@ enum RadialStyle {
 }
 
 struct RadialProgressBar: View {
+    @EnvironmentObject var battery:BatteryManager
     @Binding var progress: Double
     
     @State private var size:CGSize
@@ -73,8 +74,16 @@ struct RadialProgressBar: View {
                 Circle()
                     .trim(from: 0.0, to: CGFloat(self.position))
                     .stroke(
-                        AngularGradient(gradient: Gradient(colors: [Color(hexString: "E4FFD8"), Color.green, Color.green]), center: .center),
-                        style: StrokeStyle(lineWidth: self.line, lineCap: .round))
+                        AngularGradient(
+                            gradient: Gradient(colors: [
+                                Color(hexString: "D6FCA2"),
+                                Color.green,
+                                Color(hexString: "107E3E")
+                            ]),
+                            center: .center
+                        ),
+                        style: StrokeStyle(lineWidth: self.line, lineCap: .round)
+                    )
                     .rotationEffect(.degrees(-90))
                 
             }
@@ -191,11 +200,39 @@ struct RadialProgressContainer: View {
     
     var body: some View {
         ZStack {
+            // 1. Faint shadow cast onto the glass panel behind it
             Circle()
-                .stroke(Color("BatterySubtitle").opacity(0.08), style: StrokeStyle(lineWidth: 16, lineCap: .round))
+                .stroke(Color.black.opacity(0.35), style: StrokeStyle(lineWidth: 16, lineCap: .round))
+                .padding(5)
+                .blur(radius: 4.0)
+                .offset(y: 2.0)
+            
+            // Base background track
+            Circle()
+                .stroke(Color("BatterySubtitle").opacity(0.06), style: StrokeStyle(lineWidth: 16, lineCap: .round))
                 .padding(5)
             
+            // Sharp actual progress ring
             RadialProgressBar($progress, size: .init(width: 80, height: 80), style: .constant(.colour))
+
+            // 4. Glossy top highlight reflection arc
+            Circle()
+                .trim(from: 0.15, to: 0.35)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.75),
+                            Color.white.opacity(0.0)
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    style: StrokeStyle(lineWidth: 1.8, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .frame(width: 81, height: 81)
+                .blur(radius: 0.4)
+                .allowsHitTesting(false)
 
             ZStack(alignment: .center) {
                 Text("\(self.percent ?? 0)")

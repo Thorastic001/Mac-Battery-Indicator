@@ -17,7 +17,7 @@ struct WindowViewBlur: NSViewRepresentable {
 
         view.blendingMode = .behindWindow
         view.state = .active
-        view.material = .underWindowBackground
+        view.material = .popover
 
         return view
         
@@ -71,14 +71,16 @@ class WindowManager: ObservableObject {
     @Published public var opacity: CGFloat = 1.0
 
     init() {
-        BatteryManager.shared.$charging.dropFirst().removeDuplicates().sink { charging in
-            switch charging.state {
-                case .battery : self.windowOpen(.chargingStopped, device: nil)
-                case .charging : self.windowOpen(.chargingBegan, device: nil)
-                
-            }
-            
-        }.store(in: &updates)
+        BatteryManager.shared.$charging.dropFirst().removeDuplicates()
+            .delay(for: .seconds(0.5), scheduler: RunLoop.main)
+            .sink { charging in
+                if charging.state == BatteryManager.shared.charging.state {
+                    switch charging.state {
+                        case .battery : self.windowOpen(.chargingStopped, device: nil)
+                        case .charging : self.windowOpen(.chargingBegan, device: nil)
+                    }
+                }
+            }.store(in: &updates)
         
         BatteryManager.shared.$percentage.dropFirst().removeDuplicates().sink { percent in
             if BatteryManager.shared.charging.state == .battery {
@@ -249,6 +251,7 @@ class WindowManager: ObservableObject {
                 
             }
             
+            NotificationCenter.default.post(name: Notification.Name("BBWindowStateChanged"), object: nil)
 
         }.store(in: &updates)
         

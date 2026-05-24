@@ -70,6 +70,7 @@ struct BluetoothItem: View {
 
     @State var item:BluetoothObject?
     @State var style:RadialStyle = .light
+    @State private var isHovered = false
 
     @Namespace private var animation
     
@@ -80,65 +81,137 @@ struct BluetoothItem: View {
     }
 
     var body: some View {
-        HStack(alignment: .center) {
+        HStack(alignment: .center, spacing: 0) {
             BluetoothIcon(item, style: $style, animation: animation)
+                .padding(.leading, 14)
 
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 1) {
                 if let item = self.item {
                     Text(item.device ?? item.type.type.rawValue)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundColor(self.style == .light ? Color("BatteryButton") : Color("BatteryTitle"))
-                        .padding(0)
+                        .lineLimit(1)
                     
-                    HStack {
-                        if self.hover == true {
+                    if self.hover == true {
+                        Group {
                             if item.connected == .disconnected {
                                 Text("BluetoothDisconnectedLabel".localise())
-                        
                             }
                             else {
                                 if let percent = item.battery.percent {
                                     Text("AlertSomePercentTitle".localise([Int(percent)]))
-                                    
                                 }
                                 else {
                                     Text("BluetoothInvalidLabel".localise())
-                                        
                                 }
-                                
                             }
-                            
                         }
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(Color("BatterySubtitle"))
+                        .lineLimit(1)
                         
                     }
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(Color("BatterySubtitle"))
                     
                 }
                 else {
                     Text(AppManager.shared.appDeviceType.name)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundColor(self.style == .light ? Color("BatteryButton") : Color("BatteryTitle"))
-                        .padding(0)
+                        .lineLimit(1)
                     
                     if self.hover == true {
                         Text("AlertSomePercentTitle".localise([Int(battery.percentage)]))
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.system(size: 9, weight: .bold))
                             .foregroundColor(Color("BatterySubtitle"))
+                            .lineLimit(1)
                         
                     }
                     
                 }
                 
             }
-                                    
-        }
-        .frame(height: 60)
-        .padding(.leading, 16)
-        .padding(.trailing, 26)
-        .background(
-            RoundedRectangle(cornerRadius: 30, style: .continuous).fill(self.style == .light ? Color("BatteryTitle") : Color("BatteryButton"))
             
+            Spacer(minLength: 0)
+        }
+        .frame(width: 156, height: 60)
+        .background(
+            ZStack {
+                if self.style == .light {
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(Color("BatteryTitle"))
+                    
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .stroke(Color.white.opacity(0.8), lineWidth: 1.0)
+                } else {
+                    // 1. Volumetric carved glass depth backing
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(Color.black.opacity(self.isHovered ? 0.22 : 0.14))
+                    
+                    // 2. Liquid translucent body
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(Color.white.opacity(self.isHovered ? 0.14 : 0.06))
+                    
+                    // 3. Cloudy shine gradient
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(self.isHovered ? 0.18 : 0.10),
+                                    Color.white.opacity(self.isHovered ? 0.05 : 0.01)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                    
+                    // 4. Curved reflective streak highlight
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(0.12),
+                                    Color.clear
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .center
+                            )
+                        )
+                        .frame(height: 25)
+                        .offset(y: -12)
+                        .blur(radius: 1.0)
+                        .blendMode(.plusLighter)
+
+                    // 5. Internal bottom shadow for carved 3D indentation
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .stroke(Color.black.opacity(0.60), lineWidth: 1.5)
+                        .blur(radius: 1.5)
+                        .mask(
+                            RoundedRectangle(cornerRadius: 30, style: .continuous)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [Color.clear, Color.black]),
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                        )
+
+                    // 6. Curvature lighting stroke with bright top edge and strong glow
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(self.isHovered ? 0.75 : 0.45),
+                                    Color.white.opacity(self.isHovered ? 0.25 : 0.10),
+                                    Color.white.opacity(0.02)
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 1.0
+                        )
+                }
+            }
         )
         .onTapGesture {
             withAnimation(Animation.easeOut) {
@@ -148,6 +221,9 @@ struct BluetoothItem: View {
             
         }
         .onHover { hover in
+            withAnimation(.easeOut(duration: 0.2)) {
+                self.isHovered = hover
+            }
             switch hover {
                 case true : NSCursor.pointingHand.push()
                 default : NSCursor.pop()

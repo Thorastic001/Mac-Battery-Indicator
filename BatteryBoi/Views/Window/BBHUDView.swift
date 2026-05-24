@@ -174,28 +174,60 @@ enum HUDState:Equatable {
 
 struct HUDIcon: View {
     @EnvironmentObject var stats:StatsManager
+    @EnvironmentObject var battery:BatteryManager
 
     @Namespace private var animation
+
+    @State private var shimmerOffset: CGFloat = -40
+    @State private var glowOpacity: Double = 0.55
+    @State private var iconScale: CGFloat = 1.0
 
     var body: some View {
         VStack {
             ZStack {
+                let isCharging = (self.battery.charging.state == .charging) && (self.stats.statsIcon.name == "ChargingIcon")
+                
                 if stats.statsIcon.system == true {
                     Image(systemName: stats.statsIcon.name)
                         .resizable()
-                        .aspectRatio(contentMode: .fit).matchedGeometryEffect(id: "icon", in: animation)
-
+                        .aspectRatio(contentMode: .fit)
+                        .matchedGeometryEffect(id: "icon", in: animation)
                 }
                 else {
-                    Image(stats.statsIcon.name)
+                    let baseIcon = Image(stats.statsIcon.name)
                         .resizable()
-                        .aspectRatio(contentMode: .fit).matchedGeometryEffect(id: "icon", in: animation)
-                        
+                        .aspectRatio(contentMode: .fit)
+                    
+                    baseIcon
+                        .matchedGeometryEffect(id: "icon", in: animation)
+                        .foregroundColor(isCharging ? Color("BatteryEfficient") : Color("BatterySubtitle"))
+                        .shadow(color: isCharging ? Color("BatteryEfficient").opacity(0.85) : Color.clear, radius: isCharging ? 4 : 0)
+                        .opacity(isCharging ? self.glowOpacity : 1.0)
+                    
+                    if isCharging {
+                        baseIcon
+                            .blendMode(.plusLighter)
+                            .overlay(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.clear,
+                                        Color.white.opacity(0.70),
+                                        Color.clear
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                                .rotationEffect(.degrees(20))
+                                .offset(x: self.shimmerOffset)
+                                .mask(baseIcon)
+                            )
+                            .allowsHitTesting(false)
+                    }
                 }
                 
             }
             .frame(width: 28, height: 28)
-            .foregroundColor(Color("BatterySubtitle"))
+            .scaleEffect(self.iconScale)
             .offset(y:1)
             
         }
@@ -203,6 +235,39 @@ struct HUDIcon: View {
         .padding(.leading, 10)
         .padding(.trailing, 4)
         .background(Color.clear)
+        .onAppear() {
+            let isCharging = (self.battery.charging.state == .charging) && (self.stats.statsIcon.name == "ChargingIcon")
+            if isCharging {
+                self.iconScale = 0.5
+                withAnimation(Animation.timingCurve(0.175, 0.885, 0.32, 1.275, duration: 0.35)) {
+                    self.iconScale = 1.0
+                }
+            }
+            
+            withAnimation(Animation.easeInOut(duration: 2.2).repeatForever(autoreverses: true)) {
+                self.glowOpacity = 0.90
+            }
+            withAnimation(Animation.easeInOut(duration: 4.0).repeatForever(autoreverses: false)) {
+                self.shimmerOffset = 40
+            }
+        }
+        .onChange(of: self.battery.charging.state) { newState in
+            if newState == .charging {
+                self.iconScale = 0.5
+                withAnimation(Animation.timingCurve(0.175, 0.885, 0.32, 1.275, duration: 0.35)) {
+                    self.iconScale = 1.0
+                }
+                
+                self.shimmerOffset = -40
+                withAnimation(Animation.easeInOut(duration: 4.0).repeatForever(autoreverses: false)) {
+                    self.shimmerOffset = 40
+                }
+            } else {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    self.iconScale = 1.0
+                }
+            }
+        }
         
     }
     
@@ -224,11 +289,12 @@ struct HUDSummary: View {
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(self.title)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 21, weight: .heavy))
                     .foregroundColor(.white)
                     .lineLimit(2)
                 
                 ViewMarkdown($subtitle)
+                    .opacity(0.70)
                 
                 if self.updates.available != nil {
                     UpdatePromptView()
@@ -289,16 +355,18 @@ struct HUDContainer: View {
     var body: some View {
         HStack(alignment: .center) {
             HUDSummary()
+                .offset(y: -4)
 
             if self.progress == .trailing {
                 HUDProgress().matchedGeometryEffect(id: "progress", in: self.namespace)
+                    .offset(y: -8)
                 
             }
             
         }
         .timeline($timeline ,state: $animation)
-        .padding(.leading, 20)
-        .padding(.trailing, 10)
+        .padding(.horizontal, 15)
+        .padding(.vertical, 8)
         .onAppear() {
             if let animation = window.state.container {
                 self.timeline = animation
@@ -345,6 +413,76 @@ struct HUDMaskView: View {
                 .timeline($timeline, state: $animation)
                 .frame(width: 20, height: 20)
             
+        }
+        .onAppear() {
+            if let animation = window.state.mask {
+                self.timeline = animation
+                
+            }
+          
+        }
+        .onChange(of: window.state, perform: { newValue in
+            if let animation = newValue.mask {
+                self.timeline = animation
+                
+            }
+          
+        })
+        
+    }
+
+}
+
+struct HUDEdgeLight: View {
+    @EnvironmentObject var window:WindowManager
+
+    @State private var timeline:AnimationObject
+    @State private var animation:AnimationState = .waiting
+
+    init() {
+        self._timeline = State(initialValue: .init([]))
+        
+    }
+    
+    var body: some View {
+        ZStack {
+            // Layer 1: Thicker blurred highlight for soft ambient edge glow (focused on top & top-leading)
+            RoundedRectangle(cornerRadius: 0, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.35),
+                            Color(red: 0.85, green: 0.92, blue: 1.0).opacity(0.25),
+                            Color.clear
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 3.5
+                )
+                .blur(radius: 2.0)
+                .timeline($timeline, state: $animation)
+                .frame(width: 20, height: 20)
+                
+            // Layer 2: Sharp specular light catcher for highly realistic liquid glass edges
+            RoundedRectangle(cornerRadius: 0, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.85), // Brighter upper-left corner catches specular light
+                            Color(red: 0.90, green: 0.95, blue: 1.0).opacity(0.60), // White/blue top edge highlight
+                            Color.white.opacity(0.15), // Right edge
+                            Color.black.opacity(0.45), // Darker lower-right corner catches shadow
+                            Color.white.opacity(0.05), // Bottom edge
+                            Color.white.opacity(0.30)  // Left edge
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.2
+                )
+                .timeline($timeline, state: $animation)
+                .frame(width: 20, height: 20)
         }
         .onAppear() {
             if let animation = window.state.mask {
@@ -473,8 +611,89 @@ struct HUDView: View {
         }
         .frame(width: 440, height: 240)
         .background(
-            Color("BatteryBackground").opacity(window.opacity)
-
+            ZStack {
+                WindowViewBlur().allowsHitTesting(false)
+                
+                // Base liquid glass shading
+                Color("BatteryBackground").opacity(0.12 * window.opacity).allowsHitTesting(false)
+                
+                // Upper-left soft cloudy white/blue caustics
+                RadialGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.88, green: 0.94, blue: 1.0).opacity(0.18),
+                        Color.white.opacity(0.05),
+                        Color.clear
+                    ]),
+                    center: .topLeading,
+                    startRadius: 0,
+                    endRadius: 380
+                ).allowsHitTesting(false)
+                
+                // Lower-right dark glass shading
+                RadialGradient(
+                    gradient: Gradient(colors: [
+                        Color.black.opacity(0.30),
+                        Color.clear
+                    ]),
+                    center: .bottomTrailing,
+                    startRadius: 0,
+                    endRadius: 400
+                ).allowsHitTesting(false)
+                
+                // Subtle Refraction Physics: Slanted light-bending lense beams
+                ZStack {
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.09),
+                            Color.white.opacity(0.0)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottom
+                    )
+                    .frame(width: 140)
+                    .rotationEffect(.degrees(25))
+                    .offset(x: -80, y: -40)
+                    .blendMode(.plusLighter)
+                    .blur(radius: 8.0)
+                    
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.05),
+                            Color.white.opacity(0.0)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottom
+                    )
+                    .frame(width: 80)
+                    .rotationEffect(.degrees(25))
+                    .offset(x: 60, y: 10)
+                    .blendMode(.plusLighter)
+                    .blur(radius: 6.0)
+                }.allowsHitTesting(false)
+                
+                // Caustic slanted light streaks
+                GeometryReader { geo in
+                    HStack(spacing: 35) {
+                        ForEach(0..<8) { i in
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(0.04 * (1.0 - Double(i)/8.0)),
+                                    Color.clear
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                            .frame(width: 1.2)
+                            .rotationEffect(.degrees(15))
+                            .offset(x: CGFloat(i) * 10, y: -20)
+                        }
+                    }
+                    .opacity(0.55)
+                }.allowsHitTesting(false)
+                
+                HUDEdgeLight()
+            }
+            .mask(HUDMaskView())
         )
         .timeline($timeline, state: $animation)
         .mask(
