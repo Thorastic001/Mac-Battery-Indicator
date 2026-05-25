@@ -223,7 +223,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     public var status:NSStatusItem? = nil
     public lazy var hosting: NSHostingView<MenuContainer> = {
         let view = NSHostingView(rootView: MenuContainer())
-        view.frame.size = NSSize(width: 45, height: 22)
+        view.wantsLayer = true
+        view.frame = NSRect(x: 0, y: 0, width: 45, height: 22)
         return view
     }()
     public var updates = Set<AnyCancellable>()
@@ -290,15 +291,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if visible == true {
             if let button = self.status?.button {
                 button.title = ""
-                self.hosting.translatesAutoresizingMaskIntoConstraints = false
+                button.wantsLayer = true
+                self.hosting.wantsLayer = true
+                
+                let buttonHeight = button.frame.height > 0 ? button.frame.height : 22
+                self.hosting.frame = NSRect(x: 0, y: 0, width: 45, height: buttonHeight)
+                
                 if !button.subviews.contains(self.hosting) {
                     button.addSubview(self.hosting)
-                    NSLayoutConstraint.activate([
-                        self.hosting.leadingAnchor.constraint(equalTo: button.leadingAnchor),
-                        self.hosting.trailingAnchor.constraint(equalTo: button.trailingAnchor),
-                        self.hosting.topAnchor.constraint(equalTo: button.topAnchor),
-                        self.hosting.bottomAnchor.constraint(equalTo: button.bottomAnchor)
-                    ])
                 }
                 button.action = #selector(applicationStatusBarButtonClicked(sender:))
                 button.target = self
