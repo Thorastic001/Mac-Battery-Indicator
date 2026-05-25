@@ -585,6 +585,22 @@ struct HUDView: View {
 
     }
     
+    var currentScale: CGFloat {
+        switch window.state {
+            case .hidden, .dismissed: return 0.2
+            case .progress: return 0.85
+            case .revealed, .detailed: return 1.0
+        }
+    }
+    
+    var currentOpacity: Double {
+        switch window.state {
+            case .hidden, .dismissed: return 0.0
+            case .progress: return 0.5
+            case .revealed, .detailed: return 1.0
+        }
+    }
+    
     var body: some View {
         ZStack(alignment: .center) {
             VStack {
@@ -704,6 +720,9 @@ struct HUDView: View {
             HUDGlow()
             
         )
+        .scaleEffect(currentScale, anchor: .top)
+        .opacity(currentOpacity)
+        .animation(.interactiveSpring(response: 0.42, dampingFraction: 0.76, blendDuration: 0.5), value: window.state)
         .onHover(perform: { hover in
             self.window.hover = hover
             

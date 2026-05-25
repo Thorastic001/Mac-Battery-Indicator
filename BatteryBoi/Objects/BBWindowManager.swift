@@ -368,6 +368,17 @@ class WindowManager: ObservableObject {
         
     }
     
+    private func getStatusItemScreenFrame() -> NSRect? {
+        guard let statusItem = AppDelegate.shared.status,
+              let button = statusItem.button,
+              let window = button.window else {
+            return nil
+        }
+        let frameInWindow = button.convert(button.bounds, to: nil)
+        let frameInScreen = window.convertToScreen(frameInWindow)
+        return frameInScreen
+    }
+    
     public func windowHandleFrame(moved: NSRect? = nil) -> NSRect {
         let windowWidth = self.screen.width / 3
         let windowHeight = self.screen.height / 2
@@ -387,6 +398,14 @@ class WindowManager: ObservableObject {
         else {
             self.triggered += 1
             
+        }
+        
+        // Dynamically align centered below the battery status item
+        if let statusFrame = self.getStatusItemScreenFrame() {
+            let batteryCenterX = statusFrame.origin.x + (statusFrame.size.width / 2)
+            let positionLeft = batteryCenterX - (positionDefault.width / 2)
+            let positionTop = statusFrame.origin.y - positionDefault.height - 6
+            return NSMakeRect(positionLeft, positionTop, positionDefault.width, positionDefault.height)
         }
         
         return calculateInitialPosition(mode: windowLastPosition, defaultSize: positionDefault, windowMargin: windowMargin)
